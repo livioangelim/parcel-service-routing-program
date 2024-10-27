@@ -1,3 +1,5 @@
+# Student ID: 123456789
+
 # main.py
 
 import csv  # Import csv module
@@ -6,6 +8,7 @@ from hash_table import HashTable
 from truck import Truck
 from distance import DistanceData
 from datetime import datetime, timedelta
+
 
 def load_packages_from_csv(filename, package_table):
     """
@@ -33,6 +36,7 @@ def load_packages_from_csv(filename, package_table):
         print("Please ensure the CSV files are in the correct directory.")
         exit(1)
 
+
 def update_package_address(package_table):
     """
     Updates the address for package #9 at 10:20 AM.
@@ -47,6 +51,7 @@ def update_package_address(package_table):
         print("Updated address for Package 9 at 10:20 AM.")
     else:
         print("Package 9 not found.")
+
 
 def assign_packages(truck, packages, current_time, package_table):
     """
@@ -90,7 +95,8 @@ def assign_packages(truck, packages, current_time, package_table):
             related_ids.append(package.package_id)  # Include current package
 
             # Check if any related packages are at the hub
-            related_packages_at_hub = [package_table.lookup(rid) for rid in related_ids if package_table.lookup(rid).status == 'At Hub']
+            related_packages_at_hub = [package_table.lookup(rid) for rid in related_ids if
+                                       package_table.lookup(rid).status == 'At Hub']
 
             if related_packages_at_hub:
                 # Need to assign all related packages together
@@ -124,6 +130,7 @@ def assign_packages(truck, packages, current_time, package_table):
             break  # Truck is full
 
     return assigned_packages
+
 
 def main():
     """
@@ -212,6 +219,7 @@ def main():
     # Provide user interface to check package statuses
     user_interface(package_table, total_mileage)
 
+
 def get_package_status(package, user_time):
     if user_time < package.departure_time:
         return 'At Hub'
@@ -220,12 +228,14 @@ def get_package_status(package, user_time):
     else:
         return 'En Route'
 
+
 def print_package_statuses(package_table, user_time):
     for package_id in range(1, 41):
         package = package_table.lookup(str(package_id))
         if package:
             status = get_package_status(package, user_time)
             print(f"Package {package_id}: {status}")
+
 
 def print_single_package_status(package_table, package_id, user_time):
     package = package_table.lookup(package_id)
@@ -234,6 +244,7 @@ def print_single_package_status(package_table, package_id, user_time):
         print(f"Package {package_id}: {status}")
     else:
         print("Package not found.")
+
 
 def user_interface(package_table, total_mileage):
     """
@@ -263,6 +274,7 @@ def user_interface(package_table, total_mileage):
             break
         else:
             print("Invalid option. Please try again.")
+
 
 if __name__ == "__main__":
     main()

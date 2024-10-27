@@ -12,7 +12,7 @@ class Truck:
 
     def __init__(self, truck_id, departure_time):
         self.truck_id = truck_id              # Unique identifier for the truck
-        self.departure_time = departure_time  # Should be a datetime object
+        self.departure_time = departure_time  # Datetime object
         self.packages = []                    # List to hold packages loaded onto the truck
         self.current_location = '4001 South 700 East'  # Starting location (Hub's address)
         self.mileage = 0.0                    # Total miles traveled by the truck

@@ -6,9 +6,9 @@ class Node:
     """
 
     def __init__(self, key, value):
-        self.key = key      # Key for hashing (package_id)
+        self.key = key  # Key for hashing (package_id)
         self.value = value  # The Package object
-        self.next = None    # Pointer to the next node
+        self.next = None  # Pointer to the next node
 
 
 class HashTable:
@@ -17,8 +17,8 @@ class HashTable:
     """
 
     def __init__(self, size=40):
-        self.size = size                # Size of the hash table
-        self.table = [None] * self.size # Initialize the table with empty buckets
+        self.size = size  # Size of the hash table
+        self.table = [None] * self.size  # Initialize the table with empty buckets
 
     def _hash(self, key):
         """
@@ -30,8 +30,8 @@ class HashTable:
         """
         Inserts a package into the hash table.
         """
-        index = self._hash(key)     # Compute hash index
-        new_node = Node(key, value) # Create a new node for the package
+        index = self._hash(key)  # Compute hash index
+        new_node = Node(key, value)  # Create a new node for the package
 
         if self.table[index] is None:
             # No collision, insert directly
@@ -55,15 +55,15 @@ class HashTable:
         """
         Retrieves a package from the hash table by its key.
         """
-        index = self._hash(key)     # Compute hash index
-        current = self.table[index] # Access the bucket at the index
+        index = self._hash(key)  # Compute hash index
+        current = self.table[index]  # Access the bucket at the index
 
         while current is not None:
             if current.key == key:
-                return current.value # Return the Package object
+                return current.value  # Return the Package object
             current = current.next
 
-        return None # Package not found
+        return None  # Package not found
 
     def update_status(self, key, status, delivery_time=None):
         """
