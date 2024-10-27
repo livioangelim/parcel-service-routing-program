@@ -16,10 +16,9 @@ class HashTable:
     Custom hash table implementation using chaining for collision handling.
     """
 
-    def __init__(self, size=10):
+    def __init__(self, size=40):
         self.size = size                # Size of the hash table
-        # Initialize the table with empty buckets
-        self.table = [None] * self.size
+        self.table = [None] * self.size # Initialize the table with empty buckets
 
     def _hash(self, key):
         """
@@ -32,7 +31,7 @@ class HashTable:
         Inserts a package into the hash table.
         """
         index = self._hash(key)     # Compute hash index
-        new_node = Node(key, value)  # Create a new node for the package
+        new_node = Node(key, value) # Create a new node for the package
 
         if self.table[index] is None:
             # No collision, insert directly
@@ -57,14 +56,14 @@ class HashTable:
         Retrieves a package from the hash table by its key.
         """
         index = self._hash(key)     # Compute hash index
-        current = self.table[index]  # Access the bucket at the index
+        current = self.table[index] # Access the bucket at the index
 
         while current is not None:
             if current.key == key:
-                return current.value  # Return the Package object
+                return current.value # Return the Package object
             current = current.next
 
-        return None  # Package not found
+        return None # Package not found
 
     def update_status(self, key, status, delivery_time=None):
         """
