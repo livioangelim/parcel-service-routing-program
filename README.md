@@ -1,72 +1,250 @@
-# WGUPS Routing Program
+# WGUPS Package Delivery System
 
-## Overview
+Welcome to the **WGUPS Package Delivery System**, a Python-based program that simulates package delivery optimization for the Western Governors University Parcel Service (WGUPS). This program uses a combination of data structures and algorithms to optimize delivery routes and ensure all packages are delivered within their deadlines while minimizing total mileage.
 
-This program simulates a delivery system for the Western Governors University Parcel Service (WGUPS). It aims to deliver 40 packages under various constraints while keeping the total mileage under 140 miles.
+## Table of Contents
 
-## Files Included
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Modules](#modules)
+- [Data Files](#data-files)
+- [Algorithm Explanation](#algorithm-explanation)
+- [Constraints Handling](#constraints-handling)
+- [Assumptions](#assumptions)
 
-- `package.py`: Contains the `Package` class representing individual packages.
-- `hash_table.py`: Contains the `HashTable` and `Node` classes for managing package data.
-- `truck.py`: Contains the `Truck` class for managing truck operations.
-- `distance.py`: Contains the `DistanceData` class for handling distances and addresses.
-- `main.py`: The main script that runs the program.
-- `CSV/packages.csv`: CSV file containing package data.
-- `CSV/addresses.csv`: CSV file containing address data.
-- `CSV/distances.csv`: CSV file containing distance data.
-- `README.md`: This file, containing documentation and steps completed.
+---
 
-## Steps Completed
+## Project Overview
 
-1. **Custom Hash Table Implementation (Requirements A & B):**
-   - Implemented a custom hash table without using built-in dictionaries or additional libraries.
-   - Created insertion and lookup functions based on package IDs.
-   - Stored all package details, including delivery status and time.
+The WGUPS Package Delivery System is designed to:
 
-2. **Routing Algorithm (Requirement C):**
-   - Developed an initial algorithm using the Nearest Neighbor approach to deliver all 40 packages.
-   - Accounted for special conditions such as delayed packages, incorrect addresses, and packages that must be delivered together.
-   - Simulated delivery times and updated package statuses accordingly.
-   - **Current Challenge:** The total mileage is **351.60 miles**, which exceeds the 140-mile limit.
+- Load and manage package data from a CSV file.
+- Calculate optimal delivery routes using the Nearest Neighbor Algorithm.
+- Handle special delivery constraints (e.g., delayed packages, address corrections, package groupings).
+- Provide a user interface to check the status of packages at any given time.
+- Ensure all packages are delivered within their specified deadlines.
+- Keep the total mileage under 140 miles, as per project requirements.
 
-3. **Time Simulation:**
-   - Used the `datetime` module to simulate time accurately.
-   - Calculated delivery times based on distances and average speed (18 mph).
+---
 
-4. **User Interface (Requirement D):**
-   - Provided a console-based menu for users to view package statuses and total mileage.
-   - Allowed users to check the status of all packages or individual packages at a specific time.
+## Features
 
+- **Hash Table Implementation**: Custom hash table for efficient package storage and retrieval.
+- **Truck Simulation**: Simulates multiple trucks with capacity and speed constraints.
+- **Distance Calculation**: Computes distances between addresses using provided distance data.
+- **Delivery Optimization**: Implements the Nearest Neighbor Algorithm for route optimization.
+- **Constraint Management**: Handles special notes and constraints associated with packages.
+- **Dynamic Time Simulation**: Updates package statuses based on simulated time progression.
+- **User Interface**: Interactive menu for querying package statuses and total mileage.
 
+---
 
-## Troubleshooting
+## Installation
 
-- **FileNotFoundError:**
-  - If you encounter an error stating that a CSV file is not found, ensure the file exists in the `CSV` directory.
-  - Verify the file names and paths.
+### Prerequisites
 
-- **Total Mileage Exceeds Limit:**
-  - The current total mileage is over the limit. Proceed to optimize the delivery routes as per the steps outlined in the "Optimization" section.
+- **Python 3.6 or higher** installed on your system.
+- Basic understanding of running Python scripts from the command line.
 
-- **Incorrect Package Statuses:**
-  - Ensure that the time entered is in the correct format (e.g., `08:00 AM`).
-  - Check that the delivery times are being calculated correctly.
+### Steps
 
+1. **Clone the Repository**:
 
-## What's Left to Do
+   ```bash
+   git clone https://github.com/yourusername/WGUPS_Package_Delivery_System.git
+   ```
 
-- **Optimization (Requirement C):**
-  - **Critical Task:** Optimize the delivery routes to reduce the total mileage below the 140-mile limit.
-  - Implement more advanced routing algorithms or adjust truck loading strategies.
-  - Consider multiple trips per truck if necessary.
+2. **Navigate to the Project Directory**:
 
-- **Testing and Validation:**
-  - Thoroughly test the program after optimization to ensure all packages are delivered within their deadlines.
-  - Verify that special delivery notes and constraints are still properly handled.
+   ```bash
+   cd WGUPS_Package_Delivery_System
+   ```
 
-- **Error Handling:**
-  - Enhance error handling for potential edge cases (e.g., invalid input from the user interface).
+3. **Ensure the Directory Structure**:
 
-- **Documentation:**
-  - Add comments and docstrings where necessary to improve code readability.
-  - Provide additional documentation or a user manual if required.
+   The project should have the following files and directories:
+
+   ```
+   - main.py
+   - truck.py
+   - package.py
+   - hash_table.py
+   - distance.py
+   - CSV/
+     - packages.csv
+     - distances.csv
+     - addresses.csv
+   - README.md
+   ```
+
+---
+
+## Usage
+
+1. **Run the Program**:
+
+   ```bash
+   python main.py
+   ```
+
+2. **Follow On-Screen Instructions**:
+
+   After the simulation completes, you'll be presented with a menu:
+
+   ```
+   WGUPS Package Delivery System
+   1. View status of all packages at a given time
+   2. View status of a single package at a given time
+   3. View total mileage
+   4. Exit
+   Please select an option:
+   ```
+
+3. **Select an Option**:
+
+   - **Option 1**: Enter a time (e.g., `10:30 AM`) to view the status of all packages at that time.
+   - **Option 2**: Enter a package ID and time to view the status of a specific package.
+   - **Option 3**: View the total mileage accumulated by all trucks.
+   - **Option 4**: Exit the program.
+
+---
+
+## Modules
+
+### 1. `main.py`
+
+The main driver of the program, responsible for:
+
+- Loading package and distance data.
+- Initializing trucks and starting the simulation loop.
+- Handling the user interface.
+
+### 2. `package.py`
+
+Defines the `Package` class, which includes:
+
+- Package attributes like ID, address, deadline, weight, notes, status, etc.
+- Methods to represent package information.
+
+### 3. `hash_table.py`
+
+Custom hash table implementation using chaining for collision resolution:
+
+- Efficiently stores and retrieves packages based on their IDs.
+- Methods include `insert`, `lookup`, and `update_status`.
+
+### 4. `truck.py`
+
+Defines the `Truck` class, simulating delivery trucks:
+
+- Manages package loading, delivery, and route optimization.
+- Attributes include capacity, speed, current location, mileage, etc.
+- Implements the Nearest Neighbor Algorithm for deliveries.
+
+### 5. `distance.py`
+
+Handles distance calculations between addresses:
+
+- Loads addresses and distance data from CSV files.
+- Provides a method `get_distance` to retrieve distances between two locations.
+
+---
+
+## Data Files
+
+All CSV files are located in the `CSV` directory.
+
+### 1. `packages.csv`
+
+Contains package data with the following columns:
+
+- Package ID
+- Address
+- City
+- State
+- Zip
+- Delivery Deadline
+- Weight
+- Notes
+
+### 2. `distances.csv`
+
+Contains a distance matrix representing the distances between different locations.
+
+### 3. `addresses.csv`
+
+Lists all the addresses corresponding to the indices used in the distance matrix.
+
+---
+
+## Algorithm Explanation
+
+### Nearest Neighbor Algorithm
+
+The Nearest Neighbor Algorithm is used to determine the delivery route for each truck:
+
+1. **Start at the Hub**:
+
+   - The truck begins its journey from the hub located at `4001 South 700 East`.
+
+2. **Select the Next Destination**:
+
+   - From the current location, select the closest package destination that hasn't been delivered yet.
+
+3. **Deliver the Package**:
+
+   - Move to the selected address, update the truck's current location, time, and mileage.
+
+4. **Repeat**:
+
+   - Continue selecting the nearest unvisited package destination until all packages on the truck are delivered.
+
+5. **Return to the Hub**:
+
+   - After all deliveries, the truck returns to the hub, updating the total mileage and time.
+
+---
+
+## Constraints Handling
+
+The program accounts for various delivery constraints:
+
+1. **Delayed Packages**:
+
+   - Packages with notes indicating a delay are not loaded onto a truck until after their arrival time.
+
+2. **Wrong Address Corrections**:
+
+   - Package 9 has a wrong address that is corrected at 10:20 AM. It cannot be loaded onto a truck before the address is updated.
+
+3. **Package Groupings**:
+
+   - Some packages must be delivered together (e.g., "Must be delivered with 13, 15").
+   - The program ensures that grouped packages are loaded onto the same truck and delivered together.
+
+4. **Truck-Specific Packages**:
+
+   - Certain packages can only be loaded onto specific trucks (e.g., "Can only be on truck 2").
+   - The assignment logic respects these constraints.
+
+---
+
+## Assumptions
+
+- **Uniform Speed**:
+
+  - Trucks travel at a constant average speed of 18 mph.
+
+- **Simultaneous Departures**:
+
+  - Trucks can depart at the same time, provided they have packages to deliver.
+
+- **Infinite Fuel**:
+
+  - Trucks do not need to refuel; fuel constraints are not considered.
+
+- **No Traffic Delays**:
+
+  - The simulation does not account for traffic conditions or delays other than those specified in package notes.
