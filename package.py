@@ -17,6 +17,8 @@ class Package:
         self.status = 'At Hub'  # Possible statuses: 'At Hub', 'En Route', 'Delivered'
         self.departure_time = None  # Time when the package left the hub
         self.delivery_time = None   # Time when the package was delivered
+        self.truck_id = None        # Truck number that delivered the package
+        self.deadline_time = None   # Parsed delivery deadline as datetime object
 
     def __str__(self):
         return f"Package {self.package_id}: {self.address}, {self.city}, {self.state} {self.zip_code}"

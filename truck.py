@@ -29,6 +29,7 @@ class Truck:
                 self.packages.append(package)
                 package.status = 'En Route'
                 package.departure_time = self.departure_time
+                package.truck_id = self.truck_id  # Assign the truck ID to the package
                 # Collect the loading event
                 loading_events.append({
                     'event_type': 'load',
@@ -42,43 +43,48 @@ class Truck:
 
     def deliver_packages(self, distance_data):
         """
-        Delivers all packages loaded on the truck using the Nearest Neighbor Algorithm.
+        Delivers all packages loaded on the truck, prioritizing packages with deadlines.
         Returns a list of delivery events.
         """
         # Initialize unvisited locations
         delivery_events = []
-        unvisited = self.packages.copy()
-        self.current_location = '4001 South 700 East'
         self.time = self.departure_time
         trip_mileage = 0.0  # Mileage for this trip
 
-        while unvisited:
-            # Find the closest package destination
-            min_distance = float('inf')
-            next_package = None
+        # Separate packages with deadlines and without deadlines
+        packages_with_deadlines = [p for p in self.packages if p.delivery_deadline != 'EOD']
+        packages_without_deadlines = [p for p in self.packages if p.delivery_deadline == 'EOD']
 
-            for package in unvisited:
-                distance = distance_data.get_distance(self.current_location, package.address)
-                if distance < min_distance:
-                    min_distance = distance
-                    next_package = package
+        # Deliver packages with deadlines first
+        for package_list in [packages_with_deadlines, packages_without_deadlines]:
+            unvisited = package_list.copy()
+            while unvisited:
+                # Find the closest package destination
+                min_distance = float('inf')
+                next_package = None
 
-            # Deliver the next package
-            if next_package:
-                trip_mileage += min_distance
-                travel_time = timedelta(hours=min_distance / self.AVERAGE_SPEED)
-                self.time += travel_time
-                next_package.delivery_time = self.time
-                next_package.status = 'Delivered'
-                # Collect the delivery event
-                delivery_events.append({
-                    'event_type': 'delivery',
-                    'package_id': next_package.package_id,
-                    'event_time': next_package.delivery_time,
-                    'truck_id': self.truck_id
-                })
-                self.current_location = next_package.address
-                unvisited.remove(next_package)
+                for package in unvisited:
+                    distance = distance_data.get_distance(self.current_location, package.address)
+                    if distance < min_distance:
+                        min_distance = distance
+                        next_package = package
+
+                # Deliver the next package
+                if next_package:
+                    trip_mileage += min_distance
+                    travel_time = timedelta(hours=min_distance / self.AVERAGE_SPEED)
+                    self.time += travel_time
+                    next_package.delivery_time = self.time
+                    next_package.status = 'Delivered'
+                    # Collect the delivery event
+                    delivery_events.append({
+                        'event_type': 'delivery',
+                        'package_id': next_package.package_id,
+                        'event_time': next_package.delivery_time,
+                        'truck_id': self.truck_id
+                    })
+                    self.current_location = next_package.address
+                    unvisited.remove(next_package)
 
         # Return to the hub
         distance_to_hub = distance_data.get_distance(self.current_location, '4001 South 700 East')

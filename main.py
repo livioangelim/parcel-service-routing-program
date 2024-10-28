@@ -1,4 +1,4 @@
-# Student ID: 011953539
+# Student ID: 123456789
 
 # main.py
 
@@ -31,16 +31,22 @@ def load_packages_from_csv(filename, package_table):
             next(reader)  # Skip header line if present
             for data in reader:
                 package_id = data[0].strip()
+                delivery_deadline = data[5].strip()
+                if delivery_deadline == 'EOD':
+                    deadline_time = parse_time_with_base_date('11:59 PM')
+                else:
+                    deadline_time = parse_time_with_base_date(delivery_deadline)
                 package = Package(
                     package_id=package_id,
                     address=data[1].strip(),
                     city=data[2].strip(),
                     state=data[3].strip(),
                     zip_code=data[4].strip(),
-                    delivery_deadline=data[5].strip(),
+                    delivery_deadline=delivery_deadline,
                     weight=data[6].strip(),
                     notes=data[7].strip() if len(data) > 7 else ''
                 )
+                package.deadline_time = deadline_time
                 package_table.insert(package_id, package)
     except FileNotFoundError:
         print(f"Error: The file '{filename}' was not found.")
@@ -75,12 +81,12 @@ def assign_packages(truck, packages, current_time, package_table):
     """
     Assigns packages to the truck for the next trip based on constraints.
     """
-    # Initialize available space and assigned packages list
     available_space = Truck.MAX_CAPACITY - len(truck.packages)
     assigned_packages = []
     assigned_package_ids = set(p.package_id for p in truck.packages)
 
-    # Iterate over all packages to determine which ones can be loaded
+    # Filter packages that are available (not delayed) and can be loaded now
+    available_packages = []
     for package in packages:
         # Check if package is already delivered or en route
         if package.status != 'At Hub':
@@ -107,6 +113,18 @@ def assign_packages(truck, packages, current_time, package_table):
             if truck.truck_id != 2:
                 continue  # Skip if package must be on Truck 2
 
+        # Add package to available packages
+        available_packages.append(package)
+
+    # Sort available packages by delivery deadline (earlier deadlines first)
+    available_packages.sort(key=lambda p: (p.deadline_time, p.package_id))
+
+    # Assign packages to the truck until it's full or no more packages
+    for package in available_packages:
+        if len(assigned_packages) >= Truck.MAX_CAPACITY:
+            break
+
+        # Handle 'must be delivered with' constraints
         if 'must be delivered with' in package.notes.lower():
             # Ensure all related packages are assigned together
             related_ids = package.notes.lower().replace('must be delivered with', '').split(',')
@@ -120,33 +138,24 @@ def assign_packages(truck, packages, current_time, package_table):
             if related_packages_at_hub:
                 # Need to assign all related packages together
                 total_needed_space = len(related_packages_at_hub)
-                if available_space >= total_needed_space:
+                if len(assigned_packages) + total_needed_space <= Truck.MAX_CAPACITY:
                     for related_package in related_packages_at_hub:
                         assigned_packages.append(related_package)
                         assigned_package_ids.add(related_package.package_id)
                         related_package.status = 'En Route'  # Mark as en route
-                        available_space -= 1
                 else:
                     continue  # Not enough space
             else:
-                # Assign package if it meets criteria and there's available space
-                if available_space > 0:
-                    assigned_packages.append(package)
-                    assigned_package_ids.add(package.package_id)
-                    available_space -= 1
-                    package.status = 'En Route'  # Mark as en route
-                else:
-                    break  # Truck is full
+                # All related packages have been delivered; proceed to assign the current package
+                assigned_packages.append(package)
+                assigned_package_ids.add(package.package_id)
+                package.status = 'En Route'  # Mark as en route
             continue  # Move to next package
 
         # Assign package if there's space
-        if available_space > 0:
-            assigned_packages.append(package)
-            assigned_package_ids.add(package.package_id)
-            available_space -= 1
-            package.status = 'En Route'  # Mark as en route
-        else:
-            break  # Truck is full
+        assigned_packages.append(package)
+        assigned_package_ids.add(package.package_id)
+        package.status = 'En Route'  # Mark as en route
 
     return assigned_packages
 
@@ -208,7 +217,7 @@ def main():
 
         # If no trucks are dispatched, advance time
         if not trucks_to_dispatch:
-            current_time += timedelta(minutes=5)
+            current_time += timedelta(minutes=1)
             continue
 
         # Deliver packages and collect delivery events
@@ -221,7 +230,7 @@ def main():
         if truck_return_times:
             current_time = min(truck_return_times)
         else:
-            current_time += timedelta(minutes=5)
+            current_time += timedelta(minutes=1)
 
         # Reset trucks for next trip
         for truck in [truck1, truck2]:
@@ -237,11 +246,9 @@ def main():
     # Print all events in chronological order
     for event in events:
         if event['event_type'] == 'load':
-            print(f"Package {event['package_id']} loaded onto Truck {event['truck_id']} "
-                  f"at {event['event_time'].strftime('%I:%M %p')}.")
+            print(f"Package {event['package_id']} loaded onto Truck {event['truck_id']} at {event['event_time'].strftime('%I:%M %p')}.")
         elif event['event_type'] == 'delivery':
-            print(f"Delivered Package {event['package_id']} "
-                  f"at {event['event_time'].strftime('%I:%M %p')} by Truck {event['truck_id']}.")
+            print(f"Delivered Package {event['package_id']} at {event['event_time'].strftime('%I:%M %p')} by Truck {event['truck_id']}.")
         elif event['event_type'] == 'update':
             print(event['message'])
 
@@ -262,9 +269,9 @@ def get_package_status(package, user_time):
     if user_time < package.departure_time:
         return 'At Hub'
     elif package.delivery_time and user_time >= package.delivery_time:
-        return f'Delivered at {package.delivery_time.strftime("%I:%M %p")}'
+        return f'Delivered by Truck {package.truck_id} at {package.delivery_time.strftime("%I:%M %p")}'
     else:
-        return 'En Route'
+        return f'En Route on Truck {package.truck_id}'
 
 
 def get_package_address(package, user_time):
