@@ -75,11 +75,12 @@ def assign_packages(truck, packages, current_time, package_table):
     """
     Assigns packages to the truck for the next trip based on constraints.
     """
+    # Initialize available space and assigned packages list
     available_space = Truck.MAX_CAPACITY - len(truck.packages)
     assigned_packages = []
     assigned_package_ids = set(p.package_id for p in truck.packages)
 
-    # Filter packages that are available (not delayed) and can be loaded now
+    # Iterate over all packages to determine which ones can be loaded
     for package in packages:
         # Check if package is already delivered or en route
         if package.status != 'At Hub':
@@ -128,7 +129,7 @@ def assign_packages(truck, packages, current_time, package_table):
                 else:
                     continue  # Not enough space
             else:
-                # All related packages have been delivered; proceed to assign the current package
+                # Assign package if it meets criteria and there's available space
                 if available_space > 0:
                     assigned_packages.append(package)
                     assigned_package_ids.add(package.package_id)
