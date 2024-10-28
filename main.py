@@ -1,5 +1,3 @@
-# Student ID: 123456789
-
 # main.py
 
 import csv
@@ -264,13 +262,37 @@ def get_package_status(package, user_time):
         return 'En Route'
 
 
+def get_package_address(package, user_time):
+    if package.package_id == '9':
+        address_update_time = parse_time_with_base_date('10:20 AM')
+        if user_time < address_update_time:
+            return package.original_address
+        else:
+            return package.address
+    else:
+        return package.address
+
+
+def get_package_city_state_zip(package, user_time):
+    if package.package_id == '9':
+        address_update_time = parse_time_with_base_date('10:20 AM')
+        if user_time < address_update_time:
+            return package.original_city, package.original_state, package.original_zip_code
+        else:
+            return package.city, package.state, package.zip_code
+    else:
+        return package.city, package.state, package.zip_code
+
+
 def print_package_statuses(package_table, user_time):
     for package_id in range(1, 41):
         package = package_table.lookup(str(package_id))
         if package:
             status = get_package_status(package, user_time)
+            address = get_package_address(package, user_time)
+            city, state, zip_code = get_package_city_state_zip(package, user_time)
             print(f"Package {package.package_id}:")
-            print(f"  Address: {package.address}, {package.city}, {package.state} {package.zip_code}")
+            print(f"  Address: {address}, {city}, {state} {zip_code}")
             print(f"  Delivery Deadline: {package.delivery_deadline}")
             print(f"  Weight: {package.weight} kg")
             print(f"  Status at {user_time.strftime('%I:%M %p')}: {status}")
@@ -281,14 +303,39 @@ def print_single_package_status(package_table, package_id, user_time):
     package = package_table.lookup(package_id)
     if package:
         status = get_package_status(package, user_time)
+        address = get_package_address(package, user_time)
+        city, state, zip_code = get_package_city_state_zip(package, user_time)
         print(f"Package {package.package_id}:")
-        print(f"  Address: {package.address}, {package.city}, {package.state} {package.zip_code}")
+        print(f"  Address: {address}, {city}, {state} {zip_code}")
         print(f"  Delivery Deadline: {package.delivery_deadline}")
         print(f"  Weight: {package.weight} kg")
         print(f"  Status at {user_time.strftime('%I:%M %p')}: {status}")
         print()
     else:
         print("Package not found.")
+
+
+def print_packages_by_address(package_table, address, user_time):
+    """
+    Prints the status of all packages matching the given address at the specified time.
+    """
+    found = False
+    for package_id in range(1, 41):
+        package = package_table.lookup(str(package_id))
+        if package:
+            package_address = get_package_address(package, user_time)
+            if package_address.lower() == address.lower():
+                status = get_package_status(package, user_time)
+                city, state, zip_code = get_package_city_state_zip(package, user_time)
+                print(f"Package {package.package_id}:")
+                print(f"  Address: {package_address}, {city}, {state} {zip_code}")
+                print(f"  Delivery Deadline: {package.delivery_deadline}")
+                print(f"  Weight: {package.weight} kg")
+                print(f"  Status at {user_time.strftime('%I:%M %p')}: {status}")
+                print()
+                found = True
+    if not found:
+        print(f"No packages found for address '{address}'.")
 
 
 def user_interface(package_table, total_mileage):
@@ -299,8 +346,9 @@ def user_interface(package_table, total_mileage):
         print("\nWGUPS Package Delivery System")
         print("1. View status of all packages at a given time")
         print("2. View status of a single package at a given time")
-        print("3. View total mileage")
-        print("4. Exit")
+        print("3. View status of packages by address at a given time")
+        print("4. View total mileage")
+        print("5. Exit")
 
         choice = input("Please select an option: ")
 
@@ -314,8 +362,13 @@ def user_interface(package_table, total_mileage):
             user_time = parse_time_with_base_date(time_input)
             print_single_package_status(package_table, package_id, user_time)
         elif choice == '3':
-            print(f"Total mileage: {total_mileage:.2f}")
+            address = input("Enter the address: ")
+            time_input = input("Enter the time (HH:MM AM/PM): ")
+            user_time = parse_time_with_base_date(time_input)
+            print_packages_by_address(package_table, address, user_time)
         elif choice == '4':
+            print(f"Total mileage: {total_mileage:.2f}")
+        elif choice == '5':
             break
         else:
             print("Invalid option. Please try again.")
