@@ -21,26 +21,36 @@ class Truck:
     def load_packages(self, packages):
         """
         Loads multiple packages onto the truck.
+        Returns a list of loading events.
         """
+        loading_events = []
         for package in packages:
             if len(self.packages) < self.MAX_CAPACITY:
                 self.packages.append(package)
                 package.status = 'En Route'
                 package.departure_time = self.departure_time
-                print(f"Package {package.package_id} loaded onto Truck {self.truck_id} at {self.departure_time.strftime('%I:%M %p')}.")
+                # Collect the loading event
+                loading_events.append({
+                    'event_type': 'load',
+                    'package_id': package.package_id,
+                    'event_time': self.departure_time,
+                    'truck_id': self.truck_id
+                })
             else:
-                print(f"Truck {self.truck_id} is at full capacity.")
-                break
+                break  # Truck is full
+        return loading_events
 
     def deliver_packages(self, distance_data):
         """
         Delivers all packages loaded on the truck using the Nearest Neighbor Algorithm.
+        Returns a list of delivery events.
         """
         # Initialize unvisited locations
+        delivery_events = []
         unvisited = self.packages.copy()
         self.current_location = '4001 South 700 East'
         self.time = self.departure_time
-        self.mileage = 0.0  # Reset mileage for the trip
+        trip_mileage = 0.0  # Mileage for this trip
 
         while unvisited:
             # Find the closest package destination
@@ -55,34 +65,44 @@ class Truck:
 
             # Deliver the next package
             if next_package:
-                self.mileage += min_distance
+                trip_mileage += min_distance
                 travel_time = timedelta(hours=min_distance / self.AVERAGE_SPEED)
                 self.time += travel_time
                 next_package.delivery_time = self.time
                 next_package.status = 'Delivered'
-                print(f"Delivered Package {next_package.package_id} at {self.time.strftime('%I:%M %p')} by Truck {self.truck_id}.")
+                # Collect the delivery event
+                delivery_events.append({
+                    'event_type': 'delivery',
+                    'package_id': next_package.package_id,
+                    'event_time': next_package.delivery_time,
+                    'truck_id': self.truck_id
+                })
                 self.current_location = next_package.address
                 unvisited.remove(next_package)
 
         # Return to the hub
         distance_to_hub = distance_data.get_distance(self.current_location, '4001 South 700 East')
-        self.mileage += distance_to_hub
+        trip_mileage += distance_to_hub
         travel_time = timedelta(hours=distance_to_hub / self.AVERAGE_SPEED)
         self.time += travel_time
         self.current_location = '4001 South 700 East'
 
+        # Update the truck's total mileage
+        self.mileage += trip_mileage
+
         # Clear the packages after delivery
         self.packages = []
+
+        return delivery_events
 
     def reset_for_next_trip(self, new_departure_time):
         """
         Resets the truck's state for the next trip.
         """
-        self.packages = []
-        self.current_location = '4001 South 700 East'  # Hub address
         self.departure_time = new_departure_time
         self.time = new_departure_time
-        self.mileage = 0.0  # Reset mileage
+        self.current_location = '4001 South 700 East'  # Hub address
+        # Total mileage is cumulative over all trips
 
     def __str__(self):
         """

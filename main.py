@@ -2,12 +2,23 @@
 
 # main.py
 
-import csv  # Import csv module
+import csv
 from package import Package
 from hash_table import HashTable
 from truck import Truck
 from distance import DistanceData
 from datetime import datetime, timedelta
+
+# Define a base date for all datetime objects
+BASE_DATE = datetime.strptime('2023-01-01', '%Y-%m-%d').date()
+
+
+def parse_time_with_base_date(time_str):
+    """
+    Parses a time string and attaches the base date.
+    """
+    time = datetime.strptime(time_str, '%I:%M %p')
+    return time.replace(year=BASE_DATE.year, month=BASE_DATE.month, day=BASE_DATE.day)
 
 
 def load_packages_from_csv(filename, package_table):
@@ -48,9 +59,16 @@ def update_package_address(package_table):
         package_9.city = 'Salt Lake City'
         package_9.state = 'UT'
         package_9.zip_code = '84111'
-        print("Updated address for Package 9 at 10:20 AM.")
+        # Collect the address update event
+        update_event = {
+            'event_type': 'update',
+            'package_id': '9',
+            'event_time': parse_time_with_base_date('10:20 AM'),
+            'message': 'Updated address for Package 9 at 10:20 AM.'
+        }
+        return update_event
     else:
-        print("Package 9 not found.")
+        return None
 
 
 def assign_packages(truck, packages, current_time, package_table):
@@ -73,13 +91,13 @@ def assign_packages(truck, packages, current_time, package_table):
 
         # Handle delayed packages
         if 'delayed' in package.notes.lower():
-            delayed_time = datetime.strptime('09:05 AM', '%I:%M %p')
+            delayed_time = parse_time_with_base_date('09:05 AM')
             if current_time < delayed_time:
                 continue  # Skip delayed packages until they arrive
 
         # Handle wrong address (package #9)
         if package.package_id == '9':
-            address_update_time = datetime.strptime('10:20 AM', '%I:%M %p')
+            address_update_time = parse_time_with_base_date('10:20 AM')
             if current_time < address_update_time:
                 continue  # Skip until address is updated
 
@@ -148,8 +166,7 @@ def main():
     distance_data.load_distances('CSV/distances.csv')
 
     # Initialize variables
-    total_mileage = 0.0
-    current_time = datetime.strptime('08:00 AM', '%I:%M %p')
+    current_time = parse_time_with_base_date('08:00 AM')
     address_updated = False  # Flag to ensure package 9's address is updated only once
 
     # Create trucks
@@ -159,53 +176,71 @@ def main():
     # Prepare list of all packages
     all_packages = [package_table.lookup(str(i)) for i in range(1, 41)]
 
+    # Collect all events (both loading and delivery)
+    events = []
+
     # Simulation loop
     while any(p.status != 'Delivered' for p in all_packages):
         # Update package #9's address at 10:20 AM
-        if not address_updated and current_time >= datetime.strptime('10:20 AM', '%I:%M %p'):
-            update_package_address(package_table)
+        if not address_updated and current_time >= parse_time_with_base_date('10:20 AM'):
+            update_event = update_package_address(package_table)
+            if update_event:
+                events.append(update_event)
             address_updated = True
 
-        # Assign packages to trucks
-        truck1_packages = assign_packages(truck1, all_packages, current_time, package_table)
-        truck2_packages = assign_packages(truck2, all_packages, current_time, package_table)
+        # List to keep track of trucks that will deliver packages
+        trucks_to_dispatch = []
 
-        # Check if any packages were assigned
-        if not truck1_packages and not truck2_packages:
-            # Advance time if no packages can be loaded now
+        # Only assign packages to trucks that are at the hub and available
+        if truck1.time <= current_time and not truck1.packages:
+            truck1_packages = assign_packages(truck1, all_packages, current_time, package_table)
+            if truck1_packages:
+                loading_events = truck1.load_packages(truck1_packages)
+                events.extend(loading_events)
+                trucks_to_dispatch.append(truck1)
+        if truck2.time <= current_time and not truck2.packages:
+            truck2_packages = assign_packages(truck2, all_packages, current_time, package_table)
+            if truck2_packages:
+                loading_events = truck2.load_packages(truck2_packages)
+                events.extend(loading_events)
+                trucks_to_dispatch.append(truck2)
+
+        # If no trucks are dispatched, advance time
+        if not trucks_to_dispatch:
             current_time += timedelta(minutes=5)
             continue
 
-        # Load packages onto trucks
-        if truck1_packages:
-            truck1.load_packages(truck1_packages)
-        if truck2_packages:
-            truck2.load_packages(truck2_packages)
-
-        # Deliver packages
-        if truck1.packages:
-            truck1.deliver_packages(distance_data)
-            total_mileage += truck1.mileage
-        if truck2.packages:
-            truck2.deliver_packages(distance_data)
-            total_mileage += truck2.mileage
+        # Deliver packages and collect delivery events
+        for truck in trucks_to_dispatch:
+            deliveries = truck.deliver_packages(distance_data)
+            events.extend(deliveries)
 
         # Update current time to the earliest time when a truck returns
-        truck_return_times = []
-        if truck1.time > current_time:
-            truck_return_times.append(truck1.time)
-        if truck2.time > current_time:
-            truck_return_times.append(truck2.time)
+        truck_return_times = [truck.time for truck in [truck1, truck2] if truck.time > current_time]
         if truck_return_times:
             current_time = min(truck_return_times)
         else:
             current_time += timedelta(minutes=5)
 
         # Reset trucks for next trip
-        if truck1.time <= current_time:
-            truck1.reset_for_next_trip(current_time)
-        if truck2.time <= current_time:
-            truck2.reset_for_next_trip(current_time)
+        for truck in [truck1, truck2]:
+            if truck.time <= current_time and not truck.packages:
+                truck.reset_for_next_trip(current_time)
+
+    # Calculate total mileage after simulation
+    total_mileage = truck1.mileage + truck2.mileage
+
+    # Sort events by event_time
+    events.sort(key=lambda x: x['event_time'])
+
+    # Print all events in chronological order
+    for event in events:
+        if event['event_type'] == 'load':
+            print(f"Package {event['package_id']} loaded onto Truck {event['truck_id']} at {event['event_time'].strftime('%I:%M %p')}.")
+        elif event['event_type'] == 'delivery':
+            print(f"Delivered Package {event['package_id']} at {event['event_time'].strftime('%I:%M %p')} by Truck {event['truck_id']}.")
+        elif event['event_type'] == 'update':
+            print(event['message'])
 
     # Print total mileage
     print(f"\nTotal mileage: {total_mileage:.2f}")
@@ -234,14 +269,24 @@ def print_package_statuses(package_table, user_time):
         package = package_table.lookup(str(package_id))
         if package:
             status = get_package_status(package, user_time)
-            print(f"Package {package_id}: {status}")
+            print(f"Package {package.package_id}:")
+            print(f"  Address: {package.address}, {package.city}, {package.state} {package.zip_code}")
+            print(f"  Delivery Deadline: {package.delivery_deadline}")
+            print(f"  Weight: {package.weight} kg")
+            print(f"  Status at {user_time.strftime('%I:%M %p')}: {status}")
+            print()
 
 
 def print_single_package_status(package_table, package_id, user_time):
     package = package_table.lookup(package_id)
     if package:
         status = get_package_status(package, user_time)
-        print(f"Package {package_id}: {status}")
+        print(f"Package {package.package_id}:")
+        print(f"  Address: {package.address}, {package.city}, {package.state} {package.zip_code}")
+        print(f"  Delivery Deadline: {package.delivery_deadline}")
+        print(f"  Weight: {package.weight} kg")
+        print(f"  Status at {user_time.strftime('%I:%M %p')}: {status}")
+        print()
     else:
         print("Package not found.")
 
@@ -261,12 +306,12 @@ def user_interface(package_table, total_mileage):
 
         if choice == '1':
             time_input = input("Enter the time (HH:MM AM/PM): ")
-            user_time = datetime.strptime(time_input, '%I:%M %p')
+            user_time = parse_time_with_base_date(time_input)
             print_package_statuses(package_table, user_time)
         elif choice == '2':
             package_id = input("Enter the package ID: ")
             time_input = input("Enter the time (HH:MM AM/PM): ")
-            user_time = datetime.strptime(time_input, '%I:%M %p')
+            user_time = parse_time_with_base_date(time_input)
             print_single_package_status(package_table, package_id, user_time)
         elif choice == '3':
             print(f"Total mileage: {total_mileage:.2f}")
