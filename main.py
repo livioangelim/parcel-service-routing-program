@@ -1,3 +1,5 @@
+# Student ID: 011953539
+
 # main.py
 
 import csv
@@ -234,9 +236,11 @@ def main():
     # Print all events in chronological order
     for event in events:
         if event['event_type'] == 'load':
-            print(f"Package {event['package_id']} loaded onto Truck {event['truck_id']} at {event['event_time'].strftime('%I:%M %p')}.")
+            print(f"Package {event['package_id']} loaded onto Truck {event['truck_id']} "
+                  f"at {event['event_time'].strftime('%I:%M %p')}.")
         elif event['event_type'] == 'delivery':
-            print(f"Delivered Package {event['package_id']} at {event['event_time'].strftime('%I:%M %p')} by Truck {event['truck_id']}.")
+            print(f"Delivered Package {event['package_id']} "
+                  f"at {event['event_time'].strftime('%I:%M %p')} by Truck {event['truck_id']}.")
         elif event['event_type'] == 'update':
             print(event['message'])
 
