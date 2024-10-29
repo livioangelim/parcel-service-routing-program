@@ -12,6 +12,7 @@ Welcome to the **Parcel Service Routing Program**, a Python-based project design
 - [Algorithm Explanation](#algorithm-explanation)
 - [Constraints Handling](#constraints-handling)
 - [Assumptions](#assumptions)
+- [Author](#author)
 
 ---
 
@@ -76,11 +77,13 @@ The Parcel Service Routing Program provides a way to:
    ```
 2. **Interactive Menu**:
    ```
-   Parcel Service Routing Program
+   WGUPS Package Delivery System
    1. View status of all packages at a given time
-   2. View status of a specific package
-   3. View total mileage
-   4. Exit
+   2. View status of a single package at a given time
+   3. View status of packages by address at a given time
+   4. View total mileage
+   5. Exit
+   Please select an option:
    ```
 
 ---
@@ -123,3 +126,9 @@ The **Nearest Neighbor Algorithm** selects the closest unvisited location for ea
 - Trucks travel at 18 mph.
 - Simultaneous truck departures are allowed.
 - No refueling or traffic delays are considered.
+
+---
+
+## Author
+
+This project was created by **Livio Mororo**.
