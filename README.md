@@ -244,10 +244,6 @@ npm run test:coverage    # With coverage report
 
 MIT License - See LICENSE file for details
 
-## Support
-
-For support, email support@parcelrouting.com or create an issue.
-
 ## Frontend Architecture
 
 ### Components
