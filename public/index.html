@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcel Routing Service</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Parcel Routing Service</h1>
+
+        <div class="form-container">
+            <h2>Add New Parcel</h2>
+            <form id="parcelForm">
+                <div class="form-group">
+                    <label for="source">Source Location:</label>
+                    <input type="text" id="source" required>
+                </div>
+                <div class="form-group">
+                    <label for="destination">Destination:</label>
+                    <input type="text" id="destination" required>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" step="0.1" required>
+                </div>
+                <button type="submit">Calculate Route</button>
+            </form>
+        </div>
+
+        <div class="results-container">
+            <h2>Optimal Route</h2>
+            <div id="routeDisplay"></div>
+            <div id="costDisplay"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
