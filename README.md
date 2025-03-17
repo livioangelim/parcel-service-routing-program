@@ -1,6 +1,20 @@
 # Parcel Service Routing Program
 
-A full-stack application for optimizing parcel delivery routes.
+An intelligent full-stack application that optimizes parcel delivery routes using advanced algorithms and real-time tracking. The system combines dynamic vehicle allocation, smart route planning, and efficient cargo management to minimize delivery times and operational costs.
+
+### Key Features
+- Multi-vehicle route optimization
+- Real-time delivery tracking
+- Dynamic load balancing
+- Intelligent vehicle-cargo matching
+- Time window constraint handling
+- Cost optimization algorithms
+
+### Technical Highlights
+- Custom hash table implementation for O(1) lookups
+- Vehicle-specific routing strategies
+- Modular architecture with React and Flask
+- Docker containerization for scalable deployment
 
 ## Project Structure
 
@@ -292,3 +306,64 @@ For support, email support@parcelrouting.com or create an issue.
   - Spacing units
   - Breakpoints
   - Typography scale
+
+## Deployment
+
+### Docker Deployment
+```bash
+# Build and start containers
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Manual Deployment
+
+#### Backend
+1. Install production dependencies:
+```bash
+pip install gunicorn
+```
+
+2. Start Gunicorn server:
+```bash
+gunicorn -b 0.0.0.0:5000 src.main:app
+```
+
+#### Frontend
+1. Build production assets:
+```bash
+npm run build
+```
+
+2. Serve with Nginx:
+```nginx
+server {
+    listen 80;
+    root /path/to/build;
+    index index.html;
+    try_files $uri $uri/ /index.html;
+}
+```
+
+### Environment Variables
+Required environment variables for production:
+- `FLASK_ENV`: Set to 'production'
+- `API_URL`: Backend API URL
+- `NODE_ENV`: Set to 'production'
+
+### Health Checks
+Monitor these endpoints:
+- Backend: `GET /health`
+- Frontend: `GET /health.html`
+
+### Backup
+Regularly backup CSV data:
+```bash
+# Backup csv files
+tar -czf backup.tar.gz csv/
+```
