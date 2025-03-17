@@ -1,134 +1,242 @@
-# Parcel_Service_Routing_Program
+# Logistics Route Optimization Service
 
-Welcome to the **Parcel Service Routing Program**, a Python-based project designed to optimize delivery routes. This program ensures that packages are delivered efficiently and within deadlines, using algorithms and data structures tailored for effective delivery management.
+A scalable system for optimizing delivery routes across multiple vehicle types.
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Modules](#modules)
-- [Data Files](#data-files)
-- [Algorithm Explanation](#algorithm-explanation)
-- [Constraints Handling](#constraints-handling)
-- [Assumptions](#assumptions)
-- [Author](#author)
+## Project Architecture
 
----
+```
+parcel-service-routing-program/
+├── backend/
+│   ├── src/
+│   │   ├── models/
+│   │   │   ├── cargo.py         # Cargo types and validation
+│   │   │   ├── vehicle.py       # Vehicle abstractions (Truck, Drone)
+│   │   │   └── hash_table.py    # Efficient data storage
+│   │   ├── utils/
+│   │   │   ├── distance.py      # Distance calculations
+│   │   │   └── route_optimizer.py # Route optimization logic
+│   │   ├── tests/
+│   │   └── main.py
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/          # Reusable UI components
+│   │   │   ├── ParcelForm/      # Form handling and validation
+│   │   │   │   ├── ParcelForm.js
+│   │   │   │   └── ParcelForm.css
+│   │   │   └── RouteDisplay/    # Route visualization
+│   │   │       ├── RouteDisplay.js
+│   │   │       └── RouteDisplay.css
+│   │   ├── modules/             # Core functionality
+│   │   │   ├── config/         # Application configuration
+│   │   │   │   └── config.js   # API endpoints, validation rules
+│   │   │   └── error/          # Error handling
+│   │   │       └── errorHandler.js
+│   │   ├── services/           # API communication
+│   │   │   └── api.js         # Backend interaction
+│   │   ├── styles/            # Global styles
+│   │   │   ├── global.css    # Base styles
+│   │   │   └── variables.css # Theme variables
+│   │   └── index.js          # Application entry point
+│   └── public/               # Static assets
+│       ├── index.html       # Main HTML template
+│       └── styles.css      # Legacy styles
+└── README.md
+```
 
-## Project Overview
+## Core Components
 
-The Parcel Service Routing Program provides a way to:
-- Load and manage package data from CSV files.
-- Optimize delivery routes using the Nearest Neighbor Algorithm.
-- Handle special delivery constraints such as delayed packages and address corrections.
-- Simulate dynamic delivery progress with a time-based system.
-- Provide an interactive user interface to check package statuses and track delivery mileage.
-- Ensure the total mileage stays under a set limit (140 miles).
+### Vehicle System
+- Abstract Vehicle base class
+- Specialized implementations (Truck, Drone)
+- Capacity and speed constraints
+- Cargo type compatibility
 
----
+### Cargo Management
+- Multiple cargo categories (Standard, Express, Fragile)
+- Weight-based validation
+- Delivery time windows
+- Status tracking
 
-## Features
+### Route Optimization
+- Vehicle-specific routing
+- Multi-stop journey planning
+- Cost optimization
+- Real-time availability checks
 
-- **Custom Hash Table**: Efficient package storage and lookup.
-- **Multi-Truck Delivery Simulation**: Simulates trucks with specific capacities and speeds.
-- **Distance Management**: Uses distance data to calculate optimal delivery routes.
-- **Dynamic Time Simulation**: Updates package statuses based on time progression.
-- **Constraint Management**: Manages special requirements for package delivery.
-- **User Interface**: Offers an interactive menu to track deliveries and mileage.
+## API Reference
 
----
+### POST /api/route
+Calculate optimal delivery route.
 
-## Installation
+```json
+{
+  "source": "string",
+  "destination": "string",
+  "weight": "number",
+  "category": "standard|express|fragile",
+  "delivery_time": "datetime" // Optional
+}
+```
 
-### Prerequisites
-- Python 3.6 or higher.
+Response:
+```json
+{
+  "route": ["location1", "location2"],
+  "cost": "number",
+  "vehicle_id": "string",
+  "cargo_id": "number"
+}
+```
 
-### Steps
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/yourusername/Parcel_Service_Routing_Program.git
-   ```
-2. **Navigate to the Project Directory**:
-   ```bash
-   cd Parcel_Service_Routing_Program
-   ```
-3. **Ensure Directory Structure**:
-   ```
-   - main.py
-   - truck.py
-   - package.py
-   - hash_table.py
-   - distance.py
-   - CSV/
-     - packages.csv
-     - distances.csv
-     - addresses.csv
-   - README.md
-   ```
+## Detailed Setup
 
----
+### Backend Setup
+```bash
+# Create and activate virtual environment
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-## Usage
+# Install dependencies
+pip install -r requirements.txt
 
-1. **Run the Program**:
-   ```bash
-   python main.py
-   ```
-2. **Interactive Menu**:
-   ```
-   WGUPS Package Delivery System
-   1. View status of all packages at a given time
-   2. View status of a single package at a given time
-   3. View status of packages by address at a given time
-   4. View total mileage
-   5. Exit
-   Please select an option:
-   ```
+# Run migrations (if applicable)
+python src/manage.py migrate
 
----
+# Start server
+python src/main.py
+```
 
-## Modules
+### Frontend Setup
+```bash
+# Install dependencies
+cd frontend
+npm install
 
-- **`main.py`**: Main driver handling data loading and the user interface.
-- **`package.py`**: Defines the `Package` class with attributes and methods.
-- **`hash_table.py`**: Custom hash table implementation for package management.
-- **`truck.py`**: Simulates truck behavior with route optimization.
-- **`distance.py`**: Manages distances between locations.
+# Start development server
+npm start
 
----
+# Build for production
+npm run build
+```
 
-## Data Files
+## Data Structures
 
-- **`packages.csv`**: Contains package details.
-- **`distances.csv`**: Provides distance data between delivery locations.
-- **`addresses.csv`**: Lists all delivery addresses.
+### Hash Table
+- Custom implementation for O(1) lookups
+- Dynamic bucket sizing
+- Collision handling
 
----
+### Vehicle Hierarchy
+```python
+Vehicle (Abstract)
+├── Truck
+│   └── Properties: capacity, speed
+└── Drone
+    └── Properties: capacity, speed, range
+```
 
-## Algorithm Explanation
+## Testing
 
-The **Nearest Neighbor Algorithm** selects the closest unvisited location for each delivery, ensuring efficient routing and prompt deliveries.
+### Backend Tests
+```bash
+cd backend
+python -m pytest src/tests/         # Run all tests
+python -m pytest src/tests/test_distance.py  # Specific test
+```
 
----
+### Frontend Tests
+```bash
+cd frontend
+npm test                  # Run all tests
+npm run test:coverage    # With coverage report
+```
 
-## Constraints Handling
+## Performance Optimizations
+- Vehicle-specific route calculations
+- Efficient cargo-vehicle matching
+- Cached route patterns
+- Load distribution across vehicle fleet
 
-- **Delayed Packages**: Not loaded until their arrival.
-- **Address Corrections**: Updates made mid-simulation.
-- **Grouped Packages**: Delivered together based on constraints.
-- **Truck-Specific Packages**: Loaded only on designated trucks.
+## Security Features
 
----
+- Input validation
+- Rate limiting
+- Authentication for API endpoints
+- Data sanitization
 
-## Assumptions
+## Technologies Used
 
-- Trucks travel at 18 mph.
-- Simultaneous truck departures are allowed.
-- No refueling or traffic delays are considered.
+### Backend
+- Python 3.8+
+- Flask (Web framework)
+- pytest (Testing)
+- Custom data structures
 
----
+### Frontend
+- Modern JavaScript (ES6+)
+- Custom components
+- CSS Grid/Flexbox
+- Fetch API
 
-## Author
+## Contributing
 
-This project was created by **Livio Mororo**.
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Support
+
+For support, email support@parcelrouting.com or create an issue.
+
+## Frontend Architecture
+
+### Components
+- **ParcelForm**: Handles user input and form submission
+  - Form validation
+  - Weight constraints checking
+  - Real-time input validation
+  - Error state management
+
+- **RouteDisplay**: Visualizes delivery routes
+  - Route path rendering
+  - Cost calculation display
+  - Vehicle assignment information
+  - Status updates
+
+### Modules
+- **Config**: Centralized configuration
+  - API endpoints
+  - Validation rules
+  - Environment settings
+
+- **Error**: Error handling system
+  - Custom error classes
+  - Error message formatting
+  - User-friendly error display
+
+### Services
+- **API**: Backend communication
+  - Route calculation requests
+  - Error handling
+  - Response parsing
+  - Request retry logic
+
+### Styles
+- **Global**: Base styling system
+  - CSS reset
+  - Typography
+  - Layout utilities
+
+- **Variables**: Theme configuration
+  - Color palette
+  - Spacing units
+  - Breakpoints
+  - Typography scale
