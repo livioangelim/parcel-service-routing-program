@@ -1,48 +1,100 @@
-# Logistics Route Optimization Service
+# Parcel Service Routing Program
 
-A scalable system for optimizing delivery routes across multiple vehicle types.
+A full-stack application for optimizing parcel delivery routes.
 
-## Project Architecture
+## Project Structure
 
 ```
 parcel-service-routing-program/
 ├── backend/
 │   ├── src/
+│   │   ├── controllers/
 │   │   ├── models/
-│   │   │   ├── cargo.py         # Cargo types and validation
-│   │   │   ├── vehicle.py       # Vehicle abstractions (Truck, Drone)
-│   │   │   └── hash_table.py    # Efficient data storage
-│   │   ├── utils/
-│   │   │   ├── distance.py      # Distance calculations
-│   │   │   └── route_optimizer.py # Route optimization logic
+│   │   │   ├── cargo.py
+│   │   │   ├── hash_table.py
+│   │   │   ├── package.py
+│   │   │   ├── truck.py
+│   │   │   └── vehicle.py
+│   │   ├── routes/
 │   │   ├── tests/
-│   │   └── main.py
-│   └── requirements.txt
+│   │   │   └── test_distance.py
+│   │   └── utils/
+│   │       ├── distance.py
+│   │       └── route_optimizer.py
+│   ├── requirements.txt
+│   └── main.py
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   │   ├── ParcelForm/      # Form handling and validation
-│   │   │   │   ├── ParcelForm.js
+│   │   ├── components/
+│   │   │   ├── ParcelForm/
 │   │   │   │   └── ParcelForm.css
-│   │   │   └── RouteDisplay/    # Route visualization
-│   │   │       ├── RouteDisplay.js
+│   │   │   └── RouteDisplay/
 │   │   │       └── RouteDisplay.css
-│   │   ├── modules/             # Core functionality
-│   │   │   ├── config/         # Application configuration
-│   │   │   │   └── config.js   # API endpoints, validation rules
-│   │   │   └── error/          # Error handling
-│   │   │       └── errorHandler.js
-│   │   ├── services/           # API communication
-│   │   │   └── api.js         # Backend interaction
-│   │   ├── styles/            # Global styles
-│   │   │   ├── global.css    # Base styles
-│   │   │   └── variables.css # Theme variables
-│   │   └── index.js          # Application entry point
-│   └── public/               # Static assets
-│       ├── index.html       # Main HTML template
-│       └── styles.css      # Legacy styles
-└── README.md
+│   │   ├── config/
+│   │   ├── error/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── App.tsx
+│   │   ├── index.js
+│   │   └── index.tsx
+│   ├── public/
+│   ├── .babelrc
+│   ├── .env
+│   ├── package.json
+│   └── webpack.config.js
+├── csv/
+│   ├── addresses.csv
+│   ├── distances.csv
+│   └── packages.csv
+├── .gitignore
+├── docker-compose.yml
+├── list-files.ps1
+├── Procfile
+└── setup.ps1
 ```
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Node.js 14 or higher
+- PowerShell 5.1 or higher
+
+## Development Setup
+
+1. Clone the repository
+2. Run the setup script:
+```powershell
+.\setup.ps1
+```
+
+3. The setup script will:
+   - Create Python virtual environment
+   - Install Python dependencies
+   - Install Node.js dependencies
+   - Configure development environment
+
+## Project Organization
+
+- `backend/`: Python Flask application
+  - `src/`: Application source code
+  - `controllers/`: Request handlers
+  - `models/`: Data models and business logic
+  - `routes/`: API endpoint definitions
+  - `utils/`: Helper functions and utilities
+
+- `frontend/`: React TypeScript application
+  - `src/`: Application source code
+  - `components/`: React components
+  - `config/`: Configuration files
+  - `services/`: API service layers
+  - `styles/`: Global styles and variables
+
+- `csv/`: Data files for addresses and distances
+
+## Development Scripts
+
+- `setup.ps1`: Initialize development environment
+- `list-files.ps1`: Generate project structure documentation
 
 ## Core Components
 
