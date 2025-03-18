@@ -16,6 +16,66 @@ An intelligent full-stack application that optimizes parcel delivery routes usin
 - Modular architecture with React and Flask
 - Docker containerization for scalable deployment
 
+## Quick Start
+
+### Option 1: Using Docker (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/your-username/parcel-service-routing-program.git
+cd parcel-service-routing-program
+
+# Start the application using Docker
+docker-compose up --build
+
+# Access the application
+Frontend: http://localhost
+Backend API: http://localhost:5000
+```
+
+### Option 2: Manual Setup
+
+1. Start Backend:
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create and activate virtual environment
+python -m venv venv
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate # Linux/Mac
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start Flask server
+python src/main.py
+# Backend runs on http://localhost:5000
+```
+
+2. Start Frontend:
+```bash
+# Open new terminal and navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+# Frontend runs on http://localhost:3000
+```
+
+3. Load Sample Data:
+```bash
+# Ensure CSV files are in place
+cp sample-data/*.csv csv/
+```
+
+### Verify Installation
+1. Open http://localhost:3000 in your browser
+2. Try creating a new delivery route
+3. Check backend health at http://localhost:5000/health
+
 ## Project Structure
 
 ```

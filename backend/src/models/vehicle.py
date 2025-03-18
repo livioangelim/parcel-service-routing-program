@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List
-from .cargo import Cargo, CargoCategory
-from ..utils.distance import calculate_route_distance
+from typing import List, Dict, Union
+from src.models.cargo import Cargo, CargoCategory
+from src.utils.distance import calculate_route_distance
 
 
 class Vehicle(ABC):
@@ -29,9 +29,9 @@ class Vehicle(ABC):
         """Calculate estimated time of arrival in hours"""
         return distance / self.speed if self.speed > 0 else float('inf')
 
-
-class Truck(Vehicle):
-    def can_transport(self, cargo: Cargo) -> bool:
+    def calculate_route(self, cargo: Cargo) -> Dict[str, Union[List[str], List[float]]]:
+        """Calculate optimal route for cargo delivery"""
+        if not self.can_transport(cargo):
         return cargo.category in [CargoCategory.STANDARD, CargoCategory.EXPRESS]
 
 
